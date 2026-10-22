@@ -1,12 +1,13 @@
 # Batloung Fruits Distribution Management System
 
-The application manages fruit distribution from suppliers in South Africa to street vendors in Maseru. This repository contains the MySQL schema and a database-backed Express API with authentication, role-based authorization, inventory and order workflows, dashboard, and reports. The React client is a later phase.
+The application manages fruit distribution from suppliers in South Africa to street vendors in Maseru. This repository contains the MySQL schema, a database-backed Express API with authentication and role-based authorization, and the initial React client shell.
 
 ## Stack
 
 - MySQL with InnoDB and the `mysql2` promise connection pool
 - Node.js and Express (ES modules)
 - JWT authentication, bcrypt password hashing, and role-based authorization
+- React and Vite (JavaScript)
 
 ## Prerequisites
 
@@ -51,6 +52,17 @@ The application manages fruit distribution from suppliers in South Africa to str
    The server checks its MySQL connection before listening. API endpoints and permissions are documented in [`docs/api-reference.md`](docs/api-reference.md).
 
 To create both the initial Administrator and Sales accounts from the seed environment variables, set `SEED_ADMIN_NAME`, `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`, `SEED_SALES_NAME`, `SEED_SALES_EMAIL`, and `SEED_SALES_PASSWORD` in `server/.env`, then run `npm run seed:users` from `server`. Existing email addresses are skipped, so the command can safely be run again.
+
+6. Configure and start the client:
+
+   ```powershell
+   cd ..\client
+   Copy-Item .env.example .env
+   npm install
+   npm run dev
+   ```
+
+   The default client API URL is `http://127.0.0.1:3000/api`. The current client includes sign-in and the responsive, role-aware application shell; feature pages are added in later phases.
 
 ## Environment variables
 
