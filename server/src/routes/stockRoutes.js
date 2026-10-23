@@ -13,9 +13,9 @@ import { idParamValidator } from '../validators/sharedValidators.js';
 import { listStockValidators, purchaseBodyValidators, stockUpdateValidators } from '../validators/stockValidators.js';
 
 const router = Router();
-router.use(authenticate, authorizeRoles(ROLES.ADMINISTRATOR));
-router.get('/', listStockValidators, validateRequest, asyncHandler(listStockController));
-router.post('/', purchaseBodyValidators, validateRequest, asyncHandler(recordPurchaseController));
-router.put('/:id', idParamValidator, stockUpdateValidators, validateRequest, asyncHandler(updateStockController));
+router.use(authenticate);
+router.get('/', authorizeRoles(ROLES.ADMINISTRATOR, ROLES.SALES), listStockValidators, validateRequest, asyncHandler(listStockController));
+router.post('/', authorizeRoles(ROLES.ADMINISTRATOR), purchaseBodyValidators, validateRequest, asyncHandler(recordPurchaseController));
+router.put('/:id', authorizeRoles(ROLES.ADMINISTRATOR), idParamValidator, stockUpdateValidators, validateRequest, asyncHandler(updateStockController));
 
 export default router;

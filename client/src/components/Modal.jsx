@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+const openModals = []
 
 export function Modal({
   isOpen,
@@ -12,14 +13,21 @@ export function Modal({
   children,
   footer,
   closeOnOverlayClick = true,
+  dialogClassName = '',
 }) {
   const dialogRef = useRef(null)
+  const onCloseRef = useRef(onClose)
   const titleId = useId()
   const descriptionId = useId()
 
   useEffect(() => {
+    onCloseRef.current = onClose
+  }, [onClose])
+
+  useEffect(() => {
     if (!isOpen) return undefined
 
+    openModals.push(titleId)
     const previouslyFocused = document.activeElement
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
@@ -33,9 +41,10 @@ export function Modal({
     initialFocus.focus()
 
     function handleKeyDown(event) {
+      if (openModals.at(-1) !== titleId) return
       if (event.key === 'Escape') {
         event.stopPropagation()
-        onClose()
+        onCloseRef.current()
         return
       }
       if (event.key !== 'Tab') return
@@ -59,6 +68,7 @@ export function Modal({
     }
 
     function handleFocusIn(event) {
+      if (openModals.at(-1) !== titleId) return
       if (dialogRef.current.contains(event.target)) return
       const nextFocus = focusableElements()[0] ?? dialogRef.current
       nextFocus.focus()
@@ -67,12 +77,14 @@ export function Modal({
     document.addEventListener('keydown', handleKeyDown)
     document.addEventListener('focusin', handleFocusIn)
     return () => {
+      const modalIndex = openModals.lastIndexOf(titleId)
+      if (modalIndex !== -1) openModals.splice(modalIndex, 1)
       document.removeEventListener('keydown', handleKeyDown)
       document.removeEventListener('focusin', handleFocusIn)
       document.body.style.overflow = previousOverflow
       if (previouslyFocused instanceof HTMLElement) previouslyFocused.focus()
     }
-  }, [isOpen, onClose])
+  }, [isOpen, titleId])
 
   if (!isOpen) return null
 
@@ -80,14 +92,16 @@ export function Modal({
     <div
       className="modal-backdrop"
       onMouseDown={(event) => {
-        if (closeOnOverlayClick && event.target === event.currentTarget) onClose()
+        if (closeOnOverlayClick && event.target === event.currentTarget) {
+          onCloseRef.current()
+        }
       }}
     >
       <section
         aria-labelledby={titleId}
         aria-describedby={description ? descriptionId : undefined}
         aria-modal="true"
-        className="modal-dialog"
+        className={`modal-dialog ${dialogClassName}`}
         ref={dialogRef}
         role="dialog"
         tabIndex={-1}
@@ -100,7 +114,7 @@ export function Modal({
           <button
             aria-label="Close dialog"
             className="icon-button"
-            onClick={onClose}
+            onClick={() => onCloseRef.current()}
             type="button"
           >
             <svg aria-hidden="true" viewBox="0 0 20 20">

@@ -6,8 +6,10 @@ import { AuthProvider } from './context/AuthProvider'
 import { FruitsPage } from './pages/FruitsPage'
 import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
+import { OrdersPage } from './pages/OrdersPage'
 import { ProductsPage } from './pages/ProductsPage'
 import { StockPage } from './pages/StockPage'
+import { StreetVendorsPage } from './pages/StreetVendorsPage'
 import { SuppliersPage } from './pages/SuppliersPage'
 
 function ApplicationRoutes() {
@@ -23,6 +25,8 @@ function ApplicationRoutes() {
       >
         <Route element={<AppLayout />} path="/">
           <Route index element={<HomePage />} />
+          <Route path="orders" element={<OrdersPage />} />
+          <Route path="vendors" element={<StreetVendorsPage />} />
           <Route path="fruits" element={<FruitsPage />} />
           <Route path="products" element={<ProductsPage />} />
           <Route

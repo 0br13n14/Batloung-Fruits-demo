@@ -2,6 +2,8 @@ import { body, query } from 'express-validator';
 import { MAX_UNSIGNED_INT, ORDER_STATUS_VALUES } from '../constants.js';
 
 export const listOrderValidators = [
+  query('search').optional().isString().trim().isLength({ max: 100 })
+    .withMessage('Search must be 100 characters or fewer.'),
   query('status').optional().isIn(ORDER_STATUS_VALUES)
     .withMessage('Status is invalid.'),
   query('vendor').optional().isInt({ min: 1, max: MAX_UNSIGNED_INT }).withMessage('Vendor must be a valid positive integer.'),

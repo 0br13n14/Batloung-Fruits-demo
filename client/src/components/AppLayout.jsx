@@ -10,6 +10,16 @@ const navigationItems = [
     roles: [ROLES.ADMINISTRATOR, ROLES.SALES],
   },
   {
+    label: 'Orders',
+    to: '/orders',
+    roles: [ROLES.ADMINISTRATOR, ROLES.SALES],
+  },
+  {
+    label: 'Street Vendors',
+    to: '/vendors',
+    roles: [ROLES.ADMINISTRATOR, ROLES.SALES],
+  },
+  {
     label: 'Fruits',
     to: '/fruits',
     roles: [ROLES.ADMINISTRATOR, ROLES.SALES],

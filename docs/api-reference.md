@@ -35,7 +35,7 @@ The optional fruit `status` filter accepts `Active` or `Inactive`; the optional 
 
 ## Suppliers and street vendors
 
-Supplier `province` filters use a province ID. Vendor status filters accept `Active` or `Inactive`. Latitude and longitude are both optional, but must be provided together when used.
+Supplier `province` filters use a province ID. Vendor status filters accept `Active` or `Inactive`. Latitude and longitude are both optional, but must be provided together when used. Administrator and Sales users may read stock; only Administrators may record purchases or adjust stock. The orders `search` filter matches the order ID or vendor name.
 
 | Method | Path | Role | Sample request | Sample response |
 |---|---|---|---|---|
@@ -56,10 +56,10 @@ Posting to `/stock` records a purchase; stock is increased atomically. Completin
 
 | Method | Path | Role | Sample request | Sample response |
 |---|---|---|---|---|
-| GET | `/stock?search=apple&fruit=1&boxSize=1` | Administrator | — | `{"stock":[{"id":1,"product_id":1,"fruit_id":1,"fruit_name":"Apples","box_size_id":1,"box_size":"Small","quantity_per_box":10,"selling_price":25.5,"is_active":true,"quantity_available":8}]}` |
+| GET | `/stock?search=apple&fruit=1&boxSize=1` | Administrator, Sales | — | `{"stock":[{"id":1,"product_id":1,"fruit_id":1,"fruit_name":"Apples","box_size_id":1,"box_size":"Small","quantity_per_box":10,"selling_price":25.5,"is_active":true,"quantity_available":8}]}` |
 | POST | `/stock` | Administrator | `{"supplier_id":1,"product_id":1,"quantity_boxes":10,"unit_cost":12.5,"purchase_date":"2026-01-01"}` | `{"purchase":{"id":1,"supplier_id":1,"product_id":1,"quantity_boxes":10,"unit_cost":12.5,"purchase_date":"2026-01-01","created_by":1,"quantity_available":10}}` |
 | PUT | `/stock/:id` | Administrator | `{"quantity_available":8}` | `{"stock":{"id":1,"product_id":1,"quantity_available":8,"fruit_name":"Apples","box_size":"Small"}}` |
-| GET | `/orders?status=Pending&vendor=1&from=2026-01-01&to=2026-01-31` | Administrator, Sales | — | `{"orders":[{"id":1,"vendor_id":1,"vendor_name":"Vendor","order_date":"2026-01-01T00:00:00.000Z","status":"Pending","total_amount":51,"created_by":1}]}` |
+| GET | `/orders?search=1&status=Pending&vendor=1&from=2026-01-01&to=2026-01-31` | Administrator, Sales | — | `{"orders":[{"id":1,"vendor_id":1,"vendor_name":"Vendor","order_date":"2026-01-01T00:00:00.000Z","status":"Pending","total_amount":51,"created_by":1}]}` |
 | GET | `/orders/:id` | Administrator, Sales | — | `{"order":{"id":1,"vendor_id":1,"vendor_name":"Vendor","order_date":"2026-01-01T00:00:00.000Z","status":"Pending","total_amount":51,"created_by":1,"items":[{"id":1,"product_id":1,"fruit_name":"Apples","box_size":"Small","quantity_boxes":2,"unit_price":25.5,"subtotal":51}]}}` |
 | POST | `/orders` | Administrator, Sales | `{"vendor_id":1,"items":[{"product_id":1,"quantity_boxes":2}]}` | `{"order":{"id":1,"vendor_id":1,"vendor_name":"Vendor","status":"Pending","total_amount":51,"items":[{"product_id":1,"quantity_boxes":2,"unit_price":25.5,"subtotal":51}]}}` |
 | PUT | `/orders/:id` | Administrator, Sales | `{"status":"Confirmed"}` | `{"order":{"id":1,"status":"Confirmed","total_amount":51,"items":[]}}` |

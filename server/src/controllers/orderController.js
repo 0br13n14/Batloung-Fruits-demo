@@ -47,18 +47,20 @@ async function readOrder(connection, orderId) {
 }
 
 export async function listOrdersController(request, response) {
-  const { status = null, vendor = null, from = null, to = null } = request.query;
+  const { search = null, status = null, vendor = null, from = null, to = null } = request.query;
+  const searchTerm = search ? `%${search}%` : null;
   const [orders] = await pool.execute(
     `SELECT orders.id, orders.vendor_id, street_vendors.vendor_name,
             orders.order_date, orders.status, orders.total_amount, orders.created_by
      FROM orders
      INNER JOIN street_vendors ON street_vendors.id = orders.vendor_id
-     WHERE (? IS NULL OR orders.status = ?)
+     WHERE (? IS NULL OR CAST(orders.id AS CHAR) LIKE ? OR street_vendors.vendor_name LIKE ?)
+       AND (? IS NULL OR orders.status = ?)
        AND (? IS NULL OR orders.vendor_id = ?)
        AND (? IS NULL OR orders.order_date >= ?)
        AND (? IS NULL OR orders.order_date < DATE_ADD(?, INTERVAL 1 DAY))
      ORDER BY orders.order_date DESC, orders.id DESC`,
-    [status, status, vendor, vendor, from, from, to, to]
+    [searchTerm, searchTerm, searchTerm, status, status, vendor, vendor, from, from, to, to]
   );
   response.status(200).json({ orders });
 }

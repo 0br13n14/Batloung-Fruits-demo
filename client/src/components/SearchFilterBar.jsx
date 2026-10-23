@@ -3,6 +3,7 @@ export function SearchFilterBar({
   onSearchChange,
   onFilterChange,
   searchLabel = 'Search',
+  searchMaxLength,
   filters = [],
 }) {
   return (
@@ -13,6 +14,7 @@ export function SearchFilterBar({
         </label>
         <input
           id="table-search"
+          maxLength={searchMaxLength}
           type="search"
           value={searchValue}
           onChange={(event) => onSearchChange(event.target.value)}
