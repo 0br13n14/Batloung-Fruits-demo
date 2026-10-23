@@ -4,7 +4,9 @@ import { MAX_DECIMAL_VALUE, MAX_UNSIGNED_INT } from '../constants.js';
 export const listProductValidators = [
   query('search').optional().isString().trim(),
   query('fruit').optional().isInt({ min: 1, max: MAX_UNSIGNED_INT }).withMessage('Fruit must be a valid positive integer.'),
-  query('boxSize').optional().isInt({ min: 1, max: MAX_UNSIGNED_INT }).withMessage('Box size must be a valid positive integer.')
+  query('boxSize').optional().isInt({ min: 1, max: MAX_UNSIGNED_INT }).withMessage('Box size must be a valid positive integer.'),
+  query('status').optional().isIn(['Active', 'Inactive'])
+    .withMessage('Status must be Active or Inactive.')
 ];
 
 export const productBodyValidators = [

@@ -21,6 +21,25 @@ function localDateString() {
     .slice(0, 10)
 }
 
+function vendorDateInputValue(value) {
+  if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return value
+  }
+
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) {
+    throw new TypeError('Vendor registration date must be valid.')
+  }
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Africa/Maseru',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(date)
+  const dateParts = Object.fromEntries(parts.map(({ type, value: part }) => [type, part]))
+  return `${dateParts.year}-${dateParts.month}-${dateParts.day}`
+}
+
 const emptyVendor = {
   vendor_name: '',
   business_name: '',
@@ -41,6 +60,7 @@ export function StreetVendorsPage() {
   const [editingVendor, setEditingVendor] = useState(null)
   const [viewingVendor, setViewingVendor] = useState(null)
   const [vendorToDeactivate, setVendorToDeactivate] = useState(null)
+  const [vendorToReactivate, setVendorToReactivate] = useState(null)
   const [mapSession, setMapSession] = useState(null)
   const [form, setForm] = useState(emptyVendor)
   const [fieldErrors, setFieldErrors] = useState({})
@@ -48,6 +68,7 @@ export function StreetVendorsPage() {
   const [actionError, setActionError] = useState('')
   const [isSaving, setIsSaving] = useState(false)
   const [isDeactivating, setIsDeactivating] = useState(false)
+  const [isReactivating, setIsReactivating] = useState(false)
   const debouncedSearch = useDebouncedValue(search)
   const query = buildQuery({ search: debouncedSearch.trim(), status })
   const {
@@ -68,7 +89,7 @@ export function StreetVendorsPage() {
             location_area: vendor.location_area,
             latitude: vendor.latitude,
             longitude: vendor.longitude,
-            registration_date: String(vendor.registration_date).slice(0, 10),
+            registration_date: vendorDateInputValue(vendor.registration_date),
             status: vendor.status,
           }
         : { ...emptyVendor, registration_date: localDateString() },
@@ -142,6 +163,31 @@ export function StreetVendorsPage() {
     }
   }
 
+  async function reactivateVendor() {
+    if (!vendorToReactivate) return
+    setIsReactivating(true)
+    setActionError('')
+    try {
+      await api.put(`/vendors/${vendorToReactivate.id}`, {
+        vendor_name: vendorToReactivate.vendor_name,
+        business_name: vendorToReactivate.business_name ?? null,
+        telephone: vendorToReactivate.telephone,
+        location_area: vendorToReactivate.location_area,
+        latitude: vendorToReactivate.latitude,
+        longitude: vendorToReactivate.longitude,
+        registration_date: vendorDateInputValue(vendorToReactivate.registration_date),
+        status: 'Active',
+      })
+      setVendorToReactivate(null)
+      refresh()
+    } catch (requestError) {
+      setActionError(requestError.message)
+      setVendorToReactivate(null)
+    } finally {
+      setIsReactivating(false)
+    }
+  }
+
   function openMapPicker(readOnly, vendor = null) {
     setMapSession({
       readOnly,
@@ -212,13 +258,21 @@ export function StreetVendorsPage() {
               >
                 Edit
               </button>
-              {vendor.status === 'Active' && (
+              {vendor.status === 'Active' ? (
                 <button
                   className="button button--danger"
                   onClick={() => setVendorToDeactivate(vendor)}
                   type="button"
                 >
                   Deactivate
+                </button>
+              ) : (
+                <button
+                  className="button button--primary"
+                  onClick={() => setVendorToReactivate(vendor)}
+                  type="button"
+                >
+                  Reactivate
                 </button>
               )}
             </>
@@ -467,6 +521,15 @@ export function StreetVendorsPage() {
         onClose={() => setVendorToDeactivate(null)}
         onConfirm={deactivateVendor}
         title="Deactivate vendor"
+      />
+      <ConfirmModal
+        confirmLabel={isReactivating ? 'Reactivating...' : 'Reactivate vendor'}
+        isConfirming={isReactivating}
+        isOpen={Boolean(vendorToReactivate)}
+        message={`Reactivate ${vendorToReactivate?.vendor_name}? It will be available for new orders again.`}
+        onClose={() => setVendorToReactivate(null)}
+        onConfirm={reactivateVendor}
+        title="Reactivate vendor"
       />
     </section>
   )

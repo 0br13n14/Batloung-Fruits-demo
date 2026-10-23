@@ -30,8 +30,10 @@ export function FruitsPage() {
   const [formError, setFormError] = useState('')
   const [isSaving, setIsSaving] = useState(false)
   const [fruitToDeactivate, setFruitToDeactivate] = useState(null)
+  const [fruitToReactivate, setFruitToReactivate] = useState(null)
   const [actionError, setActionError] = useState('')
   const [isDeactivating, setIsDeactivating] = useState(false)
+  const [isReactivating, setIsReactivating] = useState(false)
   const debouncedSearch = useDebouncedValue(search)
   const query = buildQuery({
     search: debouncedSearch.trim(),
@@ -130,6 +132,29 @@ export function FruitsPage() {
     }
   }
 
+  async function reactivateFruit() {
+    if (!fruitToReactivate) return
+    setIsReactivating(true)
+    setActionError('')
+    try {
+      await api.put(`/fruits/${fruitToReactivate.id}`, {
+        name: fruitToReactivate.name,
+        description: fruitToReactivate.description ?? null,
+        source_province_ids: (fruitToReactivate.source_provinces ?? []).map(
+          (province) => Number(province.id),
+        ),
+        is_active: true,
+      })
+      setFruitToReactivate(null)
+      refresh()
+    } catch (requestError) {
+      setActionError(requestError.message)
+      setFruitToReactivate(null)
+    } finally {
+      setIsReactivating(false)
+    }
+  }
+
   const columns = [
     { key: 'name', header: 'Fruit' },
     {
@@ -164,13 +189,21 @@ export function FruitsPage() {
           >
             Edit
           </button>
-          {fruit.is_active && (
+          {fruit.is_active ? (
             <button
               className="button button--danger"
               onClick={() => setFruitToDeactivate(fruit)}
               type="button"
             >
               Deactivate
+            </button>
+          ) : (
+            <button
+              className="button button--primary"
+              onClick={() => setFruitToReactivate(fruit)}
+              type="button"
+            >
+              Reactivate
             </button>
           )}
         </div>
@@ -339,6 +372,15 @@ export function FruitsPage() {
         onClose={() => setFruitToDeactivate(null)}
         onConfirm={deactivateFruit}
         title="Deactivate fruit"
+      />
+      <ConfirmModal
+        confirmLabel={isReactivating ? 'Reactivating...' : 'Reactivate fruit'}
+        isConfirming={isReactivating}
+        isOpen={Boolean(fruitToReactivate)}
+        message={`Reactivate ${fruitToReactivate?.name}? It will be available for products and orders again.`}
+        onClose={() => setFruitToReactivate(null)}
+        onConfirm={reactivateFruit}
+        title="Reactivate fruit"
       />
     </section>
   )

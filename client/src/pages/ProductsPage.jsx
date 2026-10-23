@@ -26,20 +26,24 @@ export function ProductsPage() {
   const [search, setSearch] = useState('')
   const [fruitId, setFruitId] = useState('')
   const [boxSizeId, setBoxSizeId] = useState('')
+  const [status, setStatus] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState(null)
   const [productToDeactivate, setProductToDeactivate] = useState(null)
+  const [productToReactivate, setProductToReactivate] = useState(null)
   const [form, setForm] = useState(emptyProduct)
   const [fieldErrors, setFieldErrors] = useState({})
   const [formError, setFormError] = useState('')
   const [actionError, setActionError] = useState('')
   const [isSaving, setIsSaving] = useState(false)
   const [isDeactivating, setIsDeactivating] = useState(false)
+  const [isReactivating, setIsReactivating] = useState(false)
   const debouncedSearch = useDebouncedValue(search)
   const query = buildQuery({
     search: debouncedSearch.trim(),
     fruit: fruitId,
     boxSize: boxSizeId,
+    status,
   })
   const {
     rows: products,
@@ -131,6 +135,28 @@ export function ProductsPage() {
     }
   }
 
+  async function reactivateProduct() {
+    if (!productToReactivate) return
+    setIsReactivating(true)
+    setActionError('')
+    try {
+      await api.put(`/products/${productToReactivate.id}`, {
+        fruit_id: Number(productToReactivate.fruit_id),
+        box_size_id: Number(productToReactivate.box_size_id),
+        quantity_per_box: Number(productToReactivate.quantity_per_box),
+        selling_price: Number(productToReactivate.selling_price),
+        is_active: true,
+      })
+      setProductToReactivate(null)
+      refresh()
+    } catch (requestError) {
+      setActionError(requestError.message)
+      setProductToReactivate(null)
+    } finally {
+      setIsReactivating(false)
+    }
+  }
+
   const columns = [
     { key: 'fruit_name', header: 'Fruit' },
     { key: 'box_size', header: 'Box size' },
@@ -158,13 +184,21 @@ export function ProductsPage() {
           <button className="button button--secondary" onClick={() => openModal(product)} type="button">
             Edit
           </button>
-          {product.is_active && (
+          {product.is_active ? (
             <button
               className="button button--danger"
               onClick={() => setProductToDeactivate(product)}
               type="button"
             >
               Deactivate
+            </button>
+          ) : (
+            <button
+              className="button button--primary"
+              onClick={() => setProductToReactivate(product)}
+              type="button"
+            >
+              Reactivate
             </button>
           )}
         </div>
@@ -220,10 +254,21 @@ export function ProductsPage() {
               ...boxSizes.map((boxSize) => ({ value: String(boxSize.id), label: boxSize.name })),
             ],
           },
+          {
+            name: 'status',
+            label: 'Status',
+            value: status,
+            options: [
+              { value: '', label: 'All statuses' },
+              { value: 'Active', label: 'Active' },
+              { value: 'Inactive', label: 'Inactive' },
+            ],
+          },
         ]}
         onFilterChange={(name, value) => {
           if (name === 'fruit') setFruitId(value)
           if (name === 'boxSize') setBoxSizeId(value)
+          if (name === 'status') setStatus(value)
         }}
         onSearchChange={setSearch}
         searchLabel="Search products"
@@ -298,6 +343,15 @@ export function ProductsPage() {
         onClose={() => setProductToDeactivate(null)}
         onConfirm={deactivateProduct}
         title="Deactivate product"
+      />
+      <ConfirmModal
+        confirmLabel={isReactivating ? 'Reactivating...' : 'Reactivate product'}
+        isConfirming={isReactivating}
+        isOpen={Boolean(productToReactivate)}
+        message={`Reactivate ${productToReactivate?.fruit_name} — ${productToReactivate?.box_size}? It will be available for new orders and purchases again.`}
+        onClose={() => setProductToReactivate(null)}
+        onConfirm={reactivateProduct}
+        title="Reactivate product"
       />
     </section>
   )

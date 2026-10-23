@@ -13,13 +13,20 @@ export async function listProductsController(request, response) {
   const search = request.query.search ? `%${request.query.search}%` : null;
   const fruitId = request.query.fruit ?? null;
   const boxSizeId = request.query.boxSize ?? null;
+  const isActive =
+    request.query.status === 'Active'
+      ? true
+      : request.query.status === 'Inactive'
+        ? false
+        : null;
   const [products] = await pool.execute(
     `${productSelect}
      WHERE (? IS NULL OR fruits.name LIKE ?)
        AND (? IS NULL OR products.fruit_id = ?)
        AND (? IS NULL OR products.box_size_id = ?)
+       AND (? IS NULL OR products.is_active = ?)
      ORDER BY fruits.name, box_sizes.id`,
-    [search, search, fruitId, fruitId, boxSizeId, boxSizeId]
+    [search, search, fruitId, fruitId, boxSizeId, boxSizeId, isActive, isActive]
   );
   response.status(200).json({ products });
 }
