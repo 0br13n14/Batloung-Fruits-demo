@@ -80,9 +80,45 @@ async function saveSourceProvinces(connection, fruitId, provinceIds) {
   }
 }
 
+function getFruitNameVariants(name) {
+  const normalizedName = name.trim().toLowerCase();
+  const variants = new Set([normalizedName]);
+  if (normalizedName.endsWith('es') && normalizedName.length > 2) {
+    variants.add(normalizedName.slice(0, -2));
+  }
+  if (normalizedName.endsWith('s') && normalizedName.length > 1) {
+    variants.add(normalizedName.slice(0, -1));
+  }
+  return variants;
+}
+
+async function assertFruitNameIsUnique(connection, name, excludeId) {
+  const [rows] = await connection.execute(
+    `SELECT id, name
+     FROM fruits
+     ${excludeId === undefined ? '' : 'WHERE id <> ?'}
+     FOR UPDATE`,
+    excludeId === undefined ? [] : [excludeId]
+  );
+  const nameVariants = getFruitNameVariants(name);
+  if (
+    rows.some((fruit) =>
+      [...getFruitNameVariants(fruit.name)].some((variant) =>
+        nameVariants.has(variant)
+      )
+    )
+  ) {
+    throw new AppError(
+      'A fruit with the same name or a singular/plural variant already exists.',
+      409
+    );
+  }
+}
+
 export async function createFruitController(request, response) {
   try {
     const fruit = await withTransaction(async (connection) => {
+      await assertFruitNameIsUnique(connection, request.body.name);
       const [result] = await connection.execute(
         'INSERT INTO fruits (name, description, is_active) VALUES (?, ?, ?)',
         [request.body.name, request.body.description ?? null, request.body.is_active ?? true]
@@ -93,7 +129,10 @@ export async function createFruitController(request, response) {
     response.status(201).json({ fruit });
   } catch (error) {
     if (isDuplicateKeyError(error)) {
-      throw new AppError('A fruit with that name already exists.', 409);
+      throw new AppError(
+        'A fruit with the same name or a singular/plural variant already exists.',
+        409
+      );
     }
     throw error;
   }
@@ -110,6 +149,11 @@ export async function updateFruitController(request, response) {
         throw new AppError('Fruit not found.', 404);
       }
 
+      await assertFruitNameIsUnique(
+        connection,
+        request.body.name,
+        Number(request.params.id)
+      );
       await connection.execute(
         `UPDATE fruits
          SET name = ?, description = ?, is_active = ?
@@ -127,7 +171,10 @@ export async function updateFruitController(request, response) {
     response.status(200).json({ fruit });
   } catch (error) {
     if (isDuplicateKeyError(error)) {
-      throw new AppError('A fruit with that name already exists.', 409);
+      throw new AppError(
+        'A fruit with the same name or a singular/plural variant already exists.',
+        409
+      );
     }
     throw error;
   }

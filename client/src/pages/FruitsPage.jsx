@@ -103,8 +103,12 @@ export function FruitsPage() {
       setIsModalOpen(false)
       refresh()
     } catch (saveError) {
-      setFieldErrors(getServerFieldErrors(saveError))
-      setFormError(saveError.message)
+      const serverFieldErrors = getServerFieldErrors(saveError)
+      if (saveError.status === 409 && !serverFieldErrors.name) {
+        serverFieldErrors.name = saveError.message
+      }
+      setFieldErrors(serverFieldErrors)
+      setFormError(saveError.status === 409 ? '' : saveError.message)
     } finally {
       setIsSaving(false)
     }

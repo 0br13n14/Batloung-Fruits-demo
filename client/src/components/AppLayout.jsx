@@ -5,7 +5,7 @@ import { useAuth } from '../context/useAuth'
 
 const navigationItems = [
   {
-    label: 'Home',
+    label: 'Dashboard',
     to: '/',
     roles: [ROLES.ADMINISTRATOR, ROLES.SALES],
   },
@@ -39,6 +39,11 @@ const navigationItems = [
     to: '/suppliers',
     roles: [ROLES.ADMINISTRATOR],
   },
+  {
+    label: 'Reports',
+    to: '/reports',
+    roles: [ROLES.ADMINISTRATOR],
+  },
 ]
 
 export function AppLayout() {
@@ -51,7 +56,7 @@ export function AppLayout() {
   )
   const pageTitle =
     navigationItems.find((item) => item.to === location.pathname)?.label ??
-    'Home'
+    'Dashboard'
 
   function handleLogout() {
     logout()

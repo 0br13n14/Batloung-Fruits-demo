@@ -8,6 +8,7 @@ import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
 import { OrdersPage } from './pages/OrdersPage'
 import { ProductsPage } from './pages/ProductsPage'
+import { ReportsPage } from './pages/ReportsPage'
 import { StockPage } from './pages/StockPage'
 import { StreetVendorsPage } from './pages/StreetVendorsPage'
 import { SuppliersPage } from './pages/SuppliersPage'
@@ -34,6 +35,7 @@ function ApplicationRoutes() {
           >
             <Route path="stock" element={<StockPage />} />
             <Route path="suppliers" element={<SuppliersPage />} />
+            <Route path="reports" element={<ReportsPage />} />
           </Route>
         </Route>
       </Route>

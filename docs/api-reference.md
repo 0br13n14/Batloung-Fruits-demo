@@ -32,6 +32,7 @@ All routes except login require `Authorization: Bearer <accessToken>`. Request a
 
 Fruit/box-size product combinations are unique. The selling price and quantity per box must be greater than zero.
 The optional fruit `status` filter accepts `Active` or `Inactive`; the optional `search` parameter matches fruit names.
+Creating or renaming a fruit whose name matches an existing name after case folding and removing a trailing `s` or `es` returns `409` with a message explaining that a same-name or singular/plural variant already exists.
 
 ## Suppliers and street vendors
 
@@ -69,7 +70,7 @@ Status progression is `Pending` → `Confirmed` → `Processing` → `Ready for 
 
 ## Dashboard and reports
 
-Dashboard and reports are Administrator-only. Dashboard response includes the `summary`, `sales_by_fruit`, `orders_by_status` and `recent_orders` properties.
+The dashboard and reports API routes are Administrator-only. Dashboard response includes the `summary`, `sales_by_fruit`, `orders_by_status` and `recent_orders` properties. The Sales client dashboard builds operational summaries using only Sales-authorized list routes and does not expose sales value or charts.
 
 | Method | Path | Role | Sample request | Sample response |
 |---|---|---|---|---|

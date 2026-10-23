@@ -1,3 +1,10 @@
+$warning = @'
+WARNING: This API flow test creates a supplier, product, purchase, vendor, and orders.
+It leaves those records in the database after finishing; use a disposable test database
+or manually remove the generated "API Flow" records when no longer needed.
+'@
+Write-Warning $warning
+
 $ErrorActionPreference = 'Stop'
 $baseUrl = 'http://127.0.0.1:3000/api'
 $requiredCredentials = @(
@@ -102,6 +109,25 @@ if (-not $selectedFruit) {
 if (-not $selectedFruit.source_provinces -or $selectedFruit.source_provinces.Count -eq 0) {
   throw "Fruit '$($selectedFruit.name)' has no source province configured."
 }
+
+$duplicateCandidate = $selectedFruit.name -replace '(?i)(es|s)$', ''
+if ($duplicateCandidate -eq $selectedFruit.name) {
+  $duplicateCandidate = "$duplicateCandidate" + 'es'
+}
+$duplicateFruitRejected = $false
+try {
+  Invoke-Api -Method 'POST' -Path '/fruits' -Token $adminToken -Body @{
+    name = $duplicateCandidate
+  } | Out-Null
+} catch {
+  $status = [int]$_.Exception.Response.StatusCode
+  if ($status -eq 409) {
+    $duplicateFruitRejected = $true
+  } else {
+    throw
+  }
+}
+Assert-Equal -Actual $duplicateFruitRejected -Expected $true -Check 'Fruit singular/plural duplicate is rejected'
 
 $suffix = [Guid]::NewGuid().ToString('N').Substring(0, 8)
 $supplier = Invoke-Api -Method 'POST' -Path '/suppliers' -Token $adminToken -Body @{
