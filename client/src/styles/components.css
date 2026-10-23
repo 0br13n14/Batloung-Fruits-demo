@@ -221,6 +221,105 @@
   color: var(--color-danger);
 }
 
+.management-page {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.page-heading-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.page-heading-row h2 {
+  margin-bottom: var(--space-1);
+}
+
+.page-description {
+  margin-bottom: 0;
+  color: var(--color-muted);
+}
+
+.table-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.record-form {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.record-form textarea {
+  resize: vertical;
+}
+
+.province-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-2);
+  margin: 0;
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.province-options legend {
+  padding: 0 4px;
+  font-weight: 500;
+}
+
+.checkbox-option {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.checkbox-option input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-green-700);
+}
+
+.reference-card {
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.reference-card h3 {
+  margin-bottom: var(--space-1);
+  font-size: 16px;
+}
+
+.reference-card p:last-child {
+  margin-bottom: 0;
+}
+
+.box-size-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.box-size-list li {
+  padding: 4px var(--space-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-green-50);
+}
+
+.inline-error {
+  color: var(--color-danger);
+}
+
 .modal-backdrop {
   position: fixed;
   z-index: 50;
@@ -287,6 +386,11 @@
 }
 
 @media (max-width: 480px) {
+  .page-heading-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
   .login-card {
     padding: var(--space-2);
   }

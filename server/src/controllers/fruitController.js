@@ -4,6 +4,12 @@ import { AppError } from '../utils/AppError.js';
 
 export async function listFruitsController(request, response) {
   const search = request.query.search ? `%${request.query.search}%` : null;
+  const isActive =
+    request.query.status === 'Active'
+      ? true
+      : request.query.status === 'Inactive'
+        ? false
+        : null;
   const [fruits] = await pool.execute(
     `SELECT fruits.id, fruits.name, fruits.description, fruits.is_active,
             (SELECT COALESCE(
@@ -15,8 +21,9 @@ export async function listFruitsController(request, response) {
              WHERE fruit_source_provinces.fruit_id = fruits.id) AS source_provinces
      FROM fruits
      WHERE (? IS NULL OR fruits.name LIKE ?)
+       AND (? IS NULL OR fruits.is_active = ?)
      ORDER BY fruits.name`,
-    [search, search]
+    [search, search, isActive, isActive]
   );
   response.status(200).json({ fruits });
 }

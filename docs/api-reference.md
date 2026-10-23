@@ -19,7 +19,7 @@ All routes except login require `Authorization: Bearer <accessToken>`. Request a
 
 | Method | Path | Role | Sample request | Sample response |
 |---|---|---|---|---|
-| GET | `/fruits?search=app` | Administrator, Sales | — | `{"fruits":[{"id":1,"name":"Apples","description":null,"is_active":true,"source_provinces":[{"id":9,"name":"Western Cape"}]}]}` |
+| GET | `/fruits?search=app&status=Active` | Administrator, Sales | — | `{"fruits":[{"id":1,"name":"Apples","description":null,"is_active":true,"source_provinces":[{"id":9,"name":"Western Cape"}]}]}` |
 | GET | `/fruits/:id` | Administrator, Sales | — | `{"fruit":{"id":1,"name":"Apples","description":null,"is_active":true,"source_provinces":[]}}` |
 | POST | `/fruits` | Administrator | `{"name":"Apples","description":null,"source_province_ids":[2,6,9]}` | `{"fruit":{"id":1,"name":"Apples","source_province_ids":[2,6,9]}}` |
 | PUT | `/fruits/:id` | Administrator | `{"name":"Apples","description":null,"is_active":true,"source_province_ids":[2,6,9]}` | `{"fruit":{"id":1,"name":"Apples","description":null,"is_active":true,"source_province_ids":[2,6,9]}}` |
@@ -31,6 +31,7 @@ All routes except login require `Authorization: Bearer <accessToken>`. Request a
 | DELETE | `/products/:id` | Administrator | — | `{"message":"Product deactivated."}` |
 
 Fruit/box-size product combinations are unique. The selling price and quantity per box must be greater than zero.
+The optional fruit `status` filter accepts `Active` or `Inactive`; the optional `search` parameter matches fruit names.
 
 ## Suppliers and street vendors
 

@@ -63,13 +63,22 @@ async function request(path, options = {}) {
 }
 
 export const api = Object.freeze({
-  get(path) {
-    return request(path)
+  get(path, options) {
+    return request(path, options)
   },
   post(path, body) {
     return request(path, {
       method: 'POST',
       body: JSON.stringify(body),
     })
+  },
+  put(path, body) {
+    return request(path, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    })
+  },
+  delete(path) {
+    return request(path, { method: 'DELETE' })
   },
 })

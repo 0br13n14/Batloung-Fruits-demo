@@ -8,6 +8,7 @@ export function ConfirmModal({
   message,
   confirmLabel = 'Confirm',
   isDestructive = false,
+  isConfirming = false,
 }) {
   return (
     <Modal
@@ -22,6 +23,7 @@ export function ConfirmModal({
           </button>
           <button
             className={`button ${isDestructive ? 'button--danger' : 'button--primary'}`}
+            disabled={isConfirming}
             onClick={onConfirm}
             type="button"
           >

@@ -8,8 +8,8 @@ export function HomePage() {
       <p className="eyebrow">Workspace</p>
       <h2 id="welcome-title">Welcome, {user.fullName}</h2>
       <p>
-        Your {user.role} workspace is ready. Distribution tools will be added
-        here as their pages are built.
+        Your {user.role} workspace is ready. Use the side panel to access the
+        tools available to your role.
       </p>
     </section>
   )

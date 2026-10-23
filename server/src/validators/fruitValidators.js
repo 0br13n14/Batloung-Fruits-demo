@@ -9,7 +9,9 @@ const provinceIdList = body('source_province_ids')
   .withMessage('Every source province ID must be a valid positive integer.');
 
 export const listFruitValidators = [
-  query('search').optional().isString().trim()
+  query('search').optional().isString().trim(),
+  query('status').optional().isIn(['Active', 'Inactive'])
+    .withMessage('Status must be Active or Inactive.')
 ];
 
 export const fruitBodyValidators = [

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { ROLES } from '../constants'
 import { useAuth } from '../context/useAuth'
 
@@ -9,15 +9,39 @@ const navigationItems = [
     to: '/',
     roles: [ROLES.ADMINISTRATOR, ROLES.SALES],
   },
+  {
+    label: 'Fruits',
+    to: '/fruits',
+    roles: [ROLES.ADMINISTRATOR, ROLES.SALES],
+  },
+  {
+    label: 'Box Sizes and Products',
+    to: '/products',
+    roles: [ROLES.ADMINISTRATOR, ROLES.SALES],
+  },
+  {
+    label: 'Stock',
+    to: '/stock',
+    roles: [ROLES.ADMINISTRATOR],
+  },
+  {
+    label: 'Suppliers',
+    to: '/suppliers',
+    roles: [ROLES.ADMINISTRATOR],
+  },
 ]
 
 export function AppLayout() {
   const { user, logout } = useAuth()
+  const location = useLocation()
   const navigate = useNavigate()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const visibleItems = navigationItems.filter((item) =>
     item.roles.includes(user.role),
   )
+  const pageTitle =
+    navigationItems.find((item) => item.to === location.pathname)?.label ??
+    'Home'
 
   function handleLogout() {
     logout()
@@ -90,7 +114,7 @@ export function AppLayout() {
               <path d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <h1 className="page-title">Home</h1>
+          <h1 className="page-title">{pageTitle}</h1>
         </header>
         <main className="page-content">
           <Outlet />
