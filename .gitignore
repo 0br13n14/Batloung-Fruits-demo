@@ -2,6 +2,6 @@ node_modules/
 .env
 .env.*
 !.env.example
-client/dist/
+dist/
 server/coverage/
 npm-debug.log*

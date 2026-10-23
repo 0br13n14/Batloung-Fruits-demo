@@ -24,14 +24,14 @@ All routes except login require `Authorization: Bearer <accessToken>`. Request a
 | POST | `/fruits` | Administrator | `{"name":"Apples","description":null,"source_province_ids":[2,6,9]}` | `{"fruit":{"id":1,"name":"Apples","source_province_ids":[2,6,9]}}` |
 | PUT | `/fruits/:id` | Administrator | `{"name":"Apples","description":null,"is_active":true,"source_province_ids":[2,6,9]}` | `{"fruit":{"id":1,"name":"Apples","description":null,"is_active":true,"source_province_ids":[2,6,9]}}` |
 | DELETE | `/fruits/:id` | Administrator | — | `{"message":"Fruit deactivated."}` |
-| GET | `/products?search=apple&fruit=1&boxSize=1` | Administrator, Sales | — | `{"products":[{"id":1,"fruit_id":1,"fruit_name":"Apples","box_size_id":1,"box_size":"Small","quantity_per_box":10,"selling_price":25.5,"is_active":true}]}` |
+| GET | `/products?search=apple&fruit=1&boxSize=1&status=Inactive` | Administrator, Sales | — | `{"products":[{"id":1,"fruit_id":1,"fruit_name":"Apples","box_size_id":1,"box_size":"Small","quantity_per_box":10,"selling_price":25.5,"is_active":false}]}` |
 | GET | `/products/:id` | Administrator, Sales | — | `{"product":{"id":1,"fruit_id":1,"fruit_name":"Apples","box_size_id":1,"box_size":"Small","quantity_per_box":10,"selling_price":25.5,"is_active":true}}` |
 | POST | `/products` | Administrator | `{"fruit_id":1,"box_size_id":1,"quantity_per_box":10,"selling_price":25.5}` | `{"product":{"id":1,"fruit_id":1,"fruit_name":"Apples","box_size_id":1,"box_size":"Small","quantity_per_box":10,"selling_price":25.5,"is_active":true}}` |
 | PUT | `/products/:id` | Administrator | `{"fruit_id":1,"box_size_id":1,"quantity_per_box":10,"selling_price":25.5,"is_active":true}` | `{"product":{"id":1,"fruit_id":1,"fruit_name":"Apples","box_size_id":1,"box_size":"Small","quantity_per_box":10,"selling_price":25.5,"is_active":true}}` |
 | DELETE | `/products/:id` | Administrator | — | `{"message":"Product deactivated."}` |
 
 Fruit/box-size product combinations are unique. The selling price and quantity per box must be greater than zero.
-The optional fruit `status` filter accepts `Active` or `Inactive`; the optional `search` parameter matches fruit names.
+The optional fruit and product `status` filters accept `Active` or `Inactive`; omitting the filter returns both active and inactive records. The optional fruit `search` parameter matches fruit names.
 Creating or renaming a fruit whose name matches an existing name after case folding and removing a trailing `s` or `es` returns `409` with a message explaining that a same-name or singular/plural variant already exists.
 
 ## Suppliers and street vendors
@@ -85,13 +85,3 @@ The dashboard and reports API routes are Administrator-only. Dashboard response 
 | GET | `/reports/total-sales-by-date?from=2026-01-01&to=2026-01-31` | Administrator | — | `{"report":"total-sales-by-date","data":[{"sale_date":"2026-01-01","sales_value":51}]}` |
 
 Sales reports include Completed orders only. The date report accepts optional inclusive `from` and `to` calendar dates.
-
-## End-to-end check
-
-`server/tests/apiFlow.ps1` exercises Administrator and Sales login, role enforcement, supplier/product/purchase/vendor/order creation, stock changes, dashboard data, and all eight reports. Set `API_ADMIN_EMAIL`, `API_ADMIN_PASSWORD`, `API_SALES_EMAIL`, and `API_SALES_PASSWORD` in the process environment, then run:
-
-```powershell
-.\tests\apiFlow.ps1
-```
-
-Run it from the `server` directory while the API is listening on port 3000.
